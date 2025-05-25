@@ -597,13 +597,13 @@ class IndividuoPG:
     def avaliar_no(self, no, sensores):
         if no is None:
             return 0
-            
+
         if no['tipo'] == 'folha':
             if 'valor' in no:
-                return no['valor']
+                return np.clip(no['valor'], -1e6, 1e6)
             elif 'variavel' in no:
-                return sensores[no['variavel']]
-        
+                return np.clip(sensores[no['variavel']], -1e6, 1e6)
+
         if no['operador'] == 'abs':
             return abs(self.avaliar_no(no['esquerda'], sensores))
         elif no['operador'] == 'if_positivo':
@@ -618,16 +618,40 @@ class IndividuoPG:
                 return self.avaliar_no(no['direita'], sensores)
             else:
                 return 0
-        
-        esquerda = self.avaliar_no(no['esquerda'], sensores)
-        direita = self.avaliar_no(no['direita'], sensores) if no['direita'] is not None else 0
-        
+        elif no['operador'] == 'sin':
+            valor = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e3, 1e3)
+            return np.sin(valor)
+        elif no['operador'] == 'cos':
+            valor = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e3, 1e3)
+            return np.cos(valor)
+        elif no['operador'] == 'tanh':
+            valor = np.clip(self.avaliar_no(no['esquerda'], sensores), -20, 20)
+            return np.tanh(valor)
+        elif no['operador'] == 'sqrt':
+            valor = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e6, 1e6)
+            return np.sqrt(abs(valor))
+        elif no['operador'] == 'log':
+            valor = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e6, 1e6)
+            return np.log(abs(valor) + 1e-10)
+        elif no['operador'] == 'pow':
+            base = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e3, 1e3)
+            expoente = np.clip(self.avaliar_no(no['direita'], sensores), -10, 10)
+            try:
+                base = float(abs(base))
+                expoente = float(expoente)
+                return np.power(base, expoente)
+            except Exception:
+                return 0
+
+        esquerda = np.clip(self.avaliar_no(no['esquerda'], sensores), -1e6, 1e6)
+        direita = np.clip(self.avaliar_no(no['direita'], sensores), -1e6, 1e6) if no['direita'] is not None else 0
+
         if no['operador'] == '+':
             return esquerda + direita
         elif no['operador'] == '-':
             return esquerda - direita
         elif no['operador'] == '*':
-            return esquerda * direita
+            return np.clip(esquerda * direita, -1e6, 1e6)
         elif no['operador'] == '/':
             return esquerda / direita if direita != 0 else 0
         elif no['operador'] == 'max':
