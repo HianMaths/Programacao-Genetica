@@ -751,12 +751,14 @@ class ProgramacaoGenetica:
                 
                 # Calcular fitness
                 fitness_tentativa = (
-                    robo.recursos_coletados * 100 +  # Pontos por recursos coletados
-                    robo.distancia_percorrida * 0.1 -  # Pontos por distância percorrida
-                    robo.colisoes * 50 -  # Penalidade por colisões
-                    (100 - robo.energia) * 0.5  # Penalidade por consumo de energia
+                    robo.recursos_coletados * 150 +
+                    robo.distancia_percorrida * 0.05 -
+                    robo.colisoes * 80 -
+                    (100 - robo.energia) * 0.3 +
+                    (5000 if robo.meta_atingida else 0) +  # Bônus por meta (AUMENTADO)
+                    (200 if robo.recursos_coletados == len(ambiente.recursos) else 0)
                 )
-                
+
                 # Adicionar pontos extras por atingir a meta
                 if robo.meta_atingida:
                     fitness_tentativa += 500  # Pontos extras por atingir a meta
