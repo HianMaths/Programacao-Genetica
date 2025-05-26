@@ -726,8 +726,8 @@ class ProgramacaoGenetica:
         for individuo in self.populacao:
             fitness = 0
             
-            # Simular 5 tentativas
-            for _ in range(5):
+            # Simular 3 tentativas
+            for _ in range(3):  # Reduzido de 5 para 3 tentativas
                 ambiente.reset()
                 robo.reset(ambiente.largura // 2, ambiente.altura // 2)
                 
@@ -766,7 +766,7 @@ class ProgramacaoGenetica:
                 
                 fitness += max(0, fitness_tentativa)
             
-            individuo.fitness = fitness / 5  # Média das 5 tentativas
+            individuo.fitness = fitness / 3  # Média das 3 tentativas
             
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
@@ -830,7 +830,10 @@ if __name__ == "__main__":
     # Criar e treinar o algoritmo genético
     print("Treinando o algoritmo genético...")
     # PARÂMETROS PARA O ALUNO MODIFICAR
-    pg = ProgramacaoGenetica(tamanho_populacao=20, profundidade=4)
+    pg = ProgramacaoGenetica(
+        tamanho_populacao=200,  # Reduzido para acelerar
+        profundidade=3          # Reduzido para acelerar
+    )
     melhor_individuo, historico = pg.evoluir(n_geracoes=5)
     
     # Salvar o melhor indivíduo
@@ -856,4 +859,4 @@ if __name__ == "__main__":
     print("Executando simulação em tempo real...")
     print("A simulação será exibida em uma janela separada.")
     print("Pressione Ctrl+C para fechar a janela quando desejar.")
-    simulador.simular() 
+    simulador.simular()
