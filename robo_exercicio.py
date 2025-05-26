@@ -709,14 +709,15 @@ class IndividuoPG:
             return individuo
 
 class ProgramacaoGenetica:
-    def __init__(self, tamanho_populacao=50, profundidade=3):
-        # PARÂMETROS PARA O ALUNO MODIFICAR
+    def __init__(self, tamanho_populacao=500, profundidade=5):
         self.tamanho_populacao = tamanho_populacao
         self.profundidade = profundidade
         self.populacao = [IndividuoPG(profundidade) for _ in range(tamanho_populacao)]
         self.melhor_individuo = None
         self.melhor_fitness = float('-inf')
         self.historico_fitness = []
+        self.taxa_mutacao = 0.15
+        self.taxa_elitismo = 0.10  # 10% dos melhores são preservados (AUMENTADO)
     
     def avaliar_populacao(self):
         ambiente = Ambiente()
