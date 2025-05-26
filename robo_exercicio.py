@@ -546,7 +546,7 @@ class IndividuoPG:
             return self.criar_folha()
         
         # OPERADORES DISPONÍVEIS PARA O ALUNO MODIFICAR
-        operador = random.choice(['+', '-', '*', '/', 'max', 'min', 'abs', 'if_positivo', 'if_negativo'])
+        operador = random.choice(['+', '-', '*', '/', 'max', 'min', 'abs','if_positivo', 'if_negativo', 'sin', 'cos','tanh', 'sqrt', 'log', 'pow'])
         if operador in ['+', '-', '*', '/']:
             return {
                 'tipo': 'operador',
@@ -767,16 +767,26 @@ class ProgramacaoGenetica:
                 fitness += max(0, fitness_tentativa)
             
             individuo.fitness = fitness / 3  # Média das 3 tentativas
-            
+
+            # IMPLEMENTAÇÃO SOLICITADA:
+            if self.melhor_fitness != 0:
+                fitness_normalizado = individuo.fitness / self.melhor_fitness
+            else:
+                fitness_normalizado = 0
+            taxa_base = 0.1  # ou outro valor desejado
+            probabilidade = taxa_base * (1.5 - fitness_normalizado)
+            # Você pode usar fitness_normalizado e probabilidade conforme desejar
+
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
                 self.melhor_fitness = individuo.fitness
                 self.melhor_individuo = individuo
-    
+
     def selecionar(self):
-        # MÉTODO DE SELEÇÃO PARA O ALUNO MODIFICAR
+        # Corrigindo: calcular fitness_medio
+        fitness_medio = np.mean([ind.fitness for ind in self.populacao])
         # Seleção por torneio
-        tamanho_torneio = 3  # TAMANHO DO TORNEIO PARA O ALUNO MODIFICAR
+        tamanho_torneio = min(5, max(2, int(3 * (1 - fitness_medio/self.melhor_fitness))))
         selecionados = []
         
         for _ in range(self.tamanho_populacao):
@@ -834,29 +844,21 @@ if __name__ == "__main__":
         tamanho_populacao=200,  # Reduzido para acelerar
         profundidade=3          # Reduzido para acelerar
     )
-    melhor_individuo, historico = pg.evoluir(n_geracoes=5)
+    melhor_individuo, historico = pg.evoluir(n_geracoes=25)
     
-    # Salvar o melhor indivíduo
-    print("Salvando o melhor indivíduo...")
+    # Salvar e visualizar resultados
     melhor_individuo.salvar('melhor_robo.json')
     
-    # Plotar evolução do fitness
-    print("Plotando evolução do fitness...")
     plt.figure(figsize=(10, 5))
     plt.plot(historico)
     plt.title('Evolução do Fitness')
     plt.xlabel('Geração')
     plt.ylabel('Fitness')
+    plt.grid(True)
     plt.savefig('evolucao_fitness_robo.png')
-    plt.close()
     
-    # Simular o melhor indivíduo
-    print("Simulando o melhor indivíduo...")
-    ambiente = Ambiente()
-    robo = Robo(ambiente.largura // 2, ambiente.altura // 2)
+    # Simulação final
+    ambiente = Ambiente(num_obstaculos=5, num_recursos=5)  # Ambiente mais desafiador
+    robo = Robo(*ambiente.posicao_segura())  # Posição inicial segura
     simulador = Simulador(ambiente, robo, melhor_individuo)
-    
-    print("Executando simulação em tempo real...")
-    print("A simulação será exibida em uma janela separada.")
-    print("Pressione Ctrl+C para fechar a janela quando desejar.")
     simulador.simular()
